@@ -1,15 +1,15 @@
 const Waste = require("../model/WasteModel")
 const cloudinary = require("cloudinary")
 
-const createWasteProduct = async(req, res) => {
+const createWasteProduct = async (req, res) => {
     console.log(req.body)
     console.log(req.files)
     //Destructuring data 
-    const {title, description, price} = req.body;
-    const{wasteImageurl} = req.files;
+    const { title, description, price } = req.body;
+    const { wasteImageurl } = req.files;
 
     //Now Validation
-    if(!title || !description || !price || !wasteImageurl){
+    if (!title || !description || !price || !wasteImageurl) {
         return res.json({
             success: false,
             message: "Please enter all fields"
@@ -45,7 +45,7 @@ const createWasteProduct = async(req, res) => {
 }
 
 //Get Single Waste Product
-const getSingleWasteProduct = async(req, res) => {
+const getSingleWasteProduct = async (req, res) => {
     try {
         const getsingleWasteProduct = await Waste.findById(req.params.id)
         console.log(getsingleWasteProduct)
@@ -63,7 +63,7 @@ const getSingleWasteProduct = async(req, res) => {
 }
 
 //get All Waste Product
-const getAllWasteProducts =  async(req, res) => {
+const getAllWasteProducts = async (req, res) => {
     try {
         const getallWasteProducts = await Waste.find()
         console.log(getallWasteProducts)
@@ -80,6 +80,24 @@ const getAllWasteProducts =  async(req, res) => {
     }
 }
 
+//delete Products by their id 
+const deleteWasteProduct = async (req, res) => {
+    try {
+        const deletewasteProduct = await Waste.findByIdAndDelete(req.params.id)
+        console.log(deletewasteProduct);
+        res.status(200).json({
+            success: true,
+            message: "Waste Produce Deleted Successfully.",
+            deletewasteProduct
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Internal Server error"
+        })
+    }
+}
+
 module.exports = {
-    createWasteProduct, getSingleWasteProduct, getAllWasteProducts
+    createWasteProduct, getSingleWasteProduct, getAllWasteProducts, deleteWasteProduct
 }
