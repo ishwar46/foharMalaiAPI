@@ -1,8 +1,5 @@
-// import
 const router = require("express").Router();
 const userController = require("../controllers/authController");
-const { authGuard, authGuardAdmin } = require("../middleware/authGuard");
-const verifyToken = require("../middleware/verifyToken");
 
 // Middleware function to log user creation
 const logUserCreation = (req, res, next) => {
