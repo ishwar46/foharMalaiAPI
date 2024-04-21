@@ -41,6 +41,9 @@ connectToDB();
 //user routes
 app.use("/api/v1/auth/user", require("./routes/authRoutes"));
 
+//Waste CRUD routes
+app.use("/api/v1/product", require("./routes/wasteRoutes"))
+
 //defining port
 const PORT = process.env.PORT;
 
