@@ -80,6 +80,45 @@ const getAllWasteProducts = async (req, res) => {
     }
 }
 
+//Update Waste Products 
+const updateWasteProduct = async (req, res) => {
+    //Destructuring Data 
+    const { title, description, price } = req.body;
+    const { wasteImageurl } = req.files;
+    try {
+        //If there is an image upload it to cloudinary so 
+        if (wasteImageurl) {
+            const uploadedImage = await cloudinary.v2.uploader.upload(
+                wasteImageurl.path,
+                {
+                    folder: "foharmalai/products",
+                    crop: "scale"
+                }
+            )
+            const updatedWasteData = {
+                title: title,
+                description: description,
+                price: price,
+                wasteImageurl: uploadedImage.secure_url
+            }
+
+            //Now finding waste product and image with Image
+            await Waste.findByIdAndUpdate(req.params.waste_id, updatedWasteData)
+            res.json({
+                success: true,
+                message: "Update Successfully",
+                updatedWasteData
+            })
+        }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Internal Server error.."
+        })
+    }
+}
+
+
 //delete Products by their id 
 const deleteWasteProduct = async (req, res) => {
     try {
@@ -99,5 +138,9 @@ const deleteWasteProduct = async (req, res) => {
 }
 
 module.exports = {
-    createWasteProduct, getSingleWasteProduct, getAllWasteProducts, deleteWasteProduct
+    createWasteProduct,
+    getSingleWasteProduct,
+    getAllWasteProducts,
+    deleteWasteProduct,
+    updateWasteProduct
 }
