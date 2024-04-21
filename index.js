@@ -50,4 +50,8 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+app.get('/', (req, res)=> {
+  res.send('This is fohor malai API by Roshan and Ishwar.')
+})
+
 module.exports = app;
