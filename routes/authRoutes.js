@@ -30,7 +30,7 @@ const logUserLogin = (req, res, next) => {
 };
 
 // create user
-router.post("/create", logUserCreation, userController.createUser);
+router.post("/register", logUserCreation, userController.createUser);
 
 // login user
 router.post("/login", logUserLogin, userController.loginUser);
