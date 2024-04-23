@@ -152,7 +152,29 @@ const loginUser = async (req, res) => {
   }
 };
 
+//User Profile 
+const userProfile = async (req, res, next) => {
+  const user = await User.findById(req.user._id).select('-password');
+  res.status(200).json({
+      success: true,
+      user
+  })
+}
+
+
+//Log Out 
+const logout = async (req, res) => {
+  res.clearCookie('token');
+  res.status(200).json({
+    success: true,
+    message: "User Logout Successfully",
+  })
+}
+
+
 module.exports = {
   createUser,
   loginUser,
+  userProfile,
+  logout
 };

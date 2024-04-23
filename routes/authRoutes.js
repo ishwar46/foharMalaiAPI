@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const userController = require("../controllers/authController");
+const { authGuard } = require("../middleware/authGuard");
 
 // Middleware function to log user creation
 const logUserCreation = (req, res, next) => {
@@ -34,6 +35,12 @@ router.post("/register", logUserCreation, userController.createUser);
 
 // login user
 router.post("/login", logUserLogin, userController.loginUser);
+
+//User Profile
+router.get("/profile", authGuard, userController.userProfile)
+
+//Log Out 
+router.get("/logout", userController.logout)
 
 // exporting
 module.exports = router;
