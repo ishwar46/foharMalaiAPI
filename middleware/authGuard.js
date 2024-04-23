@@ -78,12 +78,12 @@ const authGuardAdmin = async (req, res, next) => {
     }
 
     // // Otherwise, check if user is admin
-    // if (!req.user.isAdmin) {
-    //   return res.status(403).json({
-    //     success: false,
-    //     message: "Permission denied!",
-    //   });
-    // }
+    if (!req.user.isAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: "Permission denied!..you must be admin",
+      });
+    }
 
     // If user is admin, allow access
     next();
