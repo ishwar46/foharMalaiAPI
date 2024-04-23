@@ -7,6 +7,9 @@
         "test": "jest --watchAll --verbose",
         "start": " nodemon index"
     },
+    "engines": {
+        "node": ">=16.0.0"
+    },
     "keywords": [],
     "author": "",
     "license": "ISC",
