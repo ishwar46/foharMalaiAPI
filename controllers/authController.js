@@ -145,7 +145,6 @@ const loginUser = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         username: user.username,
-
         isAdmin: user.isAdmin,
         image: user.image,
       },
@@ -160,122 +159,7 @@ const loginUser = async (req, res) => {
   }
 };
 
-//User Profile
-const userProfile = async (req, res, next) => {
-  const user = await User.findById(req.user._id).select("-password");
-  res.status(200).json({
-    success: true,
-    user,
-  });
-};
-
-//Log Out
-const logout = async (req, res) => {
-  res.clearCookie("token");
-  res.status(200).json({
-    success: true,
-    message: "User Logout Successfully",
-  });
-};
-
-//Update User Profile
-const updateUserProfile = async (req, res) => {
-  const { firstName, lastName, email, address, username, mobileNo } = req.body;
-  const { image } = req.files;
-  try {
-    if (image) {
-      const uploadedImage = await cloudinary.v2.uploader.upload(image.path, {
-        folder: "foharmalai/products",
-        crop: "scale",
-      });
-      const updatedUserProfile = {
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        address: address,
-        username: username,
-        mobileNo: mobileNo,
-        image: uploadedImage.secure_url,
-      };
-      await User.findByIdAndUpdate(req.user.id);
-      res.status(200).json({
-        success: true,
-        message: "User Profile updated..",
-        updatedUserProfile,
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({
-      success: false,
-      message: "Internal Server Error",
-    });
-  }
-};
-
-//User Profile 
-const userProfile = async (req, res, next) => {
-  const user = await User.findById(req.user._id).select('-password');
-  res.status(200).json({
-    success: true,
-    user
-  })
-}
-
-
-//Log Out 
-const logout = async (req, res) => {
-  res.clearCookie('token');
-  res.status(200).json({
-    success: true,
-    message: "User Logout Successfully",
-  })
-}
-
-//Update User Profile 
-const updateUserProfile = async (req, res) => {
-  const { firstName, lastName, email, address, username, mobileNo } = req.body;
-  const { image } = req.files
-  try {
-    if (image) {
-      const uploadedImage = await cloudinary.v2.uploader.upload(
-        image.path,
-        {
-          folder: "foharmalai/products",
-          crop: "scale"
-        }
-      )
-      const updatedUserProfile = {
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        address: address,
-        username: username,
-        mobileNo: mobileNo,
-        image: uploadedImage.secure_url
-      }
-      await User.findByIdAndUpdate(req.user.id)
-      res.status(200).json({
-        success: true,
-        message: "User Profile updated..",
-        updatedUserProfile
-      })
-    }
-  } catch (error) {
-    console.log(error)
-    res.status(400).json({
-      success: false,
-      message: "Internal Server Error"
-    })
-  }
-}
-
-
 module.exports = {
   createUser,
   loginUser,
-  userProfile,
-  logout,
-  updateUserProfile,
-
 };
