@@ -1,41 +1,38 @@
 const mongoose = require("mongoose");
+
 const userSchema = new mongoose.Schema({
-  firstName: {
-    type: String,
-    required: true,
-  },
-  lastName: {
-    type: String,
-    requried: true,
-  },
-  email: {
-    type: String,
-    requried: true,
-  },
-  username: {
-    type: String,
-    requried: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  address: {
-    type: String,
-    requried: false,
-  },
-  mobileNo: {
-    type: String,
-    requried: false,
-  },
-  isAdmin: {
-    type: Boolean,
-    default: false,
-  },
-  image: {
-    type: String,
-    required: false,
-  },
+    fullName: {
+        type: String,
+        required: true,
+    },
+    email: {
+        type: String,
+        required: true,
+    },
+    username: {
+        type: String,
+        required: true,
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    address: {
+        type: String,
+        required: false,
+    },
+    mobileNo: {
+        type: String,
+        required: false,
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false,
+    },
+    image: {
+        type: String,
+        required: false,
+    },
 });
 
 const User = mongoose.model("users", userSchema);
