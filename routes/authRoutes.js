@@ -36,14 +36,5 @@ router.post("/register", logUserCreation, userController.createUser);
 // login user
 router.post("/login", logUserLogin, userController.loginUser);
 
-//User Profile
-router.get("/profile", authGuard, userController.userProfile)
-
-//Update User Profile
-router.put("/update_profile", authGuard, userController.updateUserProfile)
-
-//Log Out 
-router.get("/logout", userController.logout)
-
 // exporting
 module.exports = router;
