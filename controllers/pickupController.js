@@ -3,7 +3,6 @@ const Pickup = require("../model/pickupModel");
 // Create a new pickup request
 exports.createPickup = async(req, res) => {
     const { fullName, phoneNumber, address, date, time, coordinates } = req.body;
-
     try {
         const newPickup = new Pickup({
             fullName,
@@ -13,13 +12,13 @@ exports.createPickup = async(req, res) => {
             time,
             coordinates,
         });
-
         await newPickup.save();
         res.status(201).json({
             message: "Pickup request created successfully",
             data: newPickup,
         });
     } catch (error) {
+        console.error("Failed to create pickup request:", error);
         res.status(500).json({
             message: "Failed to create pickup request",
             error: error.message,
