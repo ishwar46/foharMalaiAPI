@@ -31,6 +31,12 @@ const PickupSchema = new mongoose.Schema({
             required: true,
         },
     },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: false,
+    }, // User ID for logged-in users
+    sessionId: { type: String, required: false },
 });
 
 const Pickup = mongoose.model("Pickup", PickupSchema);

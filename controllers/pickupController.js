@@ -2,7 +2,16 @@ const Pickup = require("../model/pickupModel");
 
 // Create a new pickup request
 exports.createPickup = async(req, res) => {
-    const { fullName, phoneNumber, address, date, time, coordinates } = req.body;
+    const {
+        fullName,
+        phoneNumber,
+        address,
+        date,
+        time,
+        coordinates,
+        userId,
+        sessionId,
+    } = req.body;
 
     try {
         const newPickup = new Pickup({
@@ -12,6 +21,8 @@ exports.createPickup = async(req, res) => {
             date,
             time,
             coordinates,
+            userId: userId || null,
+            sessionId: sessionId || null,
         });
 
         await newPickup.save();
@@ -28,9 +39,22 @@ exports.createPickup = async(req, res) => {
 };
 
 // Get all pickup requests
-exports.getAllPickups = async(req, res) => {
+exports.getPickupsByUserOrSession = async(req, res) => {
+    const { userId, sessionId } = req.query;
+
     try {
-        const pickups = await Pickup.find();
+        let query = {};
+        if (userId) {
+            query.userId = userId;
+        } else if (sessionId) {
+            query.sessionId = sessionId;
+        } else {
+            return res
+                .status(400)
+                .json({ message: "userId or sessionId is required" });
+        }
+
+        const pickups = await Pickup.find(query);
         res.status(200).json({
             message: "Pickup requests retrieved successfully",
             data: pickups,
