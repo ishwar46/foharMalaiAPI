@@ -5,161 +5,199 @@ const nodemailer = require("nodemailer");
 const User = require("../model/userModel");
 const cloudinary = require("cloudinary");
 
-const createUser = async (req, res) => {
-  // Check if data is coming or not
-  console.log(req.body);
+const createUser = async(req, res) => {
+    try {
+        // Check if data is coming or not
+        console.log(req.body);
 
-  // Destructure data
-  const { firstName, lastName, email, password, address, username, mobileNo } =
-    req.body;
-  const { image } = req.files;
+        // Destructure data
+        const { fullName, email, password, address, username, mobileNo } = req.body;
+        const { image } = req.files;
 
-  // Validate the incoming data
-  if (
-    !firstName ||
-    !lastName ||
-    !email ||
-    !password ||
-    !address ||
-    !username ||
-    !mobileNo
-  ) {
-    return res.status(400).json({
-      success: false,
-      message: "Please enter the required fields.",
-    });
-  }
+        // Validate the incoming data
+        if (!fullName ||
+            !email ||
+            !password ||
+            !address ||
+            !username ||
+            !mobileNo
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Please enter all required fields.",
+            });
+        }
 
-  let imageUrl = null;
+        let imageUrl = null;
 
-  try {
-    if (image) {
-      const userImage = await cloudinary.v2.uploader.upload(image.path, {
-        folder: "foharmalai/users",
-        crop: "crop",
-      });
-      imageUrl = userImage.secure_url;
+        try {
+            if (image) {
+                const userImage = await cloudinary.uploader.upload(image.path, {
+                    folder: "foharmalai/users",
+                    crop: "crop",
+                });
+                imageUrl = userImage.secure_url;
+            }
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                message: "Failed to upload image.",
+                error: error.message,
+            });
+        }
+
+        try {
+            // Check existing user
+            const existingUser = await User.findOne({ email: email });
+            if (existingUser) {
+                return res.status(409).json({
+                    success: false,
+                    message: "User with the same email already exists.",
+                });
+            }
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                message: "Failed to check existing user.",
+                error: error.message,
+            });
+        }
+
+        let encryptedPassword;
+        try {
+            // Password encryption
+            const randomSalt = await bcrypt.genSalt(10);
+            encryptedPassword = await bcrypt.hash(password, randomSalt);
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                message: "Failed to encrypt password.",
+                error: error.message,
+            });
+        }
+
+        try {
+            // Create a new user
+            const newUser = new User({
+                fullName: fullName,
+                email: email,
+                password: encryptedPassword,
+                address: address,
+                username: username,
+                mobileNo: mobileNo,
+                image: imageUrl,
+            });
+
+            // Save the user
+            await newUser.save();
+
+            res.status(201).json({
+                success: true,
+                message: "User created successfully.",
+                data: newUser,
+            });
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                message: "Failed to create user.",
+                error: error.message,
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Server error.",
+            error: error.message,
+        });
     }
-
-    // Check existing user
-    const existingUser = await User.findOne({ email: email });
-    if (existingUser) {
-      return res.json({
-        success: false,
-        message: "User with same email already exists",
-      });
-    }
-
-    // Password encryption
-    const randomSalt = await bcrypt.genSalt(10);
-    const encryptedPassword = await bcrypt.hash(password, randomSalt);
-
-    // Create a new user
-    const newUser = new User({
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      password: encryptedPassword,
-      address: address,
-      username: username,
-      mobileNo: mobileNo,
-      image: imageUrl,
-    });
-
-    // Save the user
-    await newUser.save();
-
-    res.status(200).json({
-      success: true,
-      message: "User created successfully.",
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
 };
 
-//**********Login User
+// Login User
+const loginUser = async(req, res) => {
+    try {
+        // Step 1: Check incoming data
+        console.log(req.body);
 
-const loginUser = async (req, res) => {
-  // step 1: Check incomming data
-  console.log(req.body);
+        // Destructuring
+        const { username, password } = req.body;
 
-  // destructuring
-  const { username, password } = req.body;
+        // Validation
+        if (!username || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "Please enter all fields.",
+            });
+        }
 
-  // validation
-  if (!username || !password) {
-    return res.json({
-      success: false,
-      message: "Please enter all fields.",
-    });
-  }
+        try {
+            // Finding user
+            const user = await User.findOne({ username: username });
+            if (!user) {
+                return res.status(404).json({
+                    success: false,
+                    message: "User does not exist.",
+                });
+            }
 
-  // try catch block
-  try {
-    // finding user
-    const user = await User.findOne({ username: username });
-    if (!user) {
-      return res.json({
-        success: false,
-        message: "User does not exists.",
-      });
+            try {
+                // Comparing password
+                const databasePassword = user.password;
+                const isMatched = await bcrypt.compare(password, databasePassword);
+
+                if (!isMatched) {
+                    return res.status(401).json({
+                        success: false,
+                        message: "Invalid credentials.",
+                    });
+                }
+
+                // Create token
+                const token = jwt.sign({
+                        id: user._id,
+                        isAdmin: user.isAdmin,
+                        fullName: user.fullName,
+                        image: user.image,
+                    },
+                    process.env.JWT_SECRET, { expiresIn: "12hr" }
+                );
+
+                // Response
+                res.status(200).json({
+                    success: true,
+                    message: "User logged in successfully.",
+                    token: token,
+                    userData: {
+                        _id: user._id,
+                        fullName: user.fullName,
+                        username: user.username,
+                        isAdmin: user.isAdmin,
+                        image: user.image,
+                    },
+                });
+            } catch (error) {
+                return res.status(500).json({
+                    success: false,
+                    message: "Failed to compare password.",
+                    error: error.message,
+                });
+            }
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                message: "Failed to find user.",
+                error: error.message,
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Server error.",
+            error: error.message,
+        });
     }
-
-    // user exists:  {FirstName, LastName, Email, Password} user.password
-    // Comparing password
-    const databasePassword = user.password;
-    const isMatched = await bcrypt.compare(password, databasePassword);
-
-    if (!isMatched) {
-      return res.json({
-        success: false,
-        message: "Invalid Credentials.",
-      });
-    }
-
-    // create token
-    const token = jwt.sign(
-      {
-        id: user._id,
-        isAdmin: user.isAdmin,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        mobileNo: user.mobileNo,
-        address: user.address,
-        username: user.username,
-        image: user.image,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "6hr" }
-    );
-
-    // response
-    res.status(200).json({
-      success: true,
-      message: "User logged in successfully.",
-      token: token,
-      userData: {
-        _id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        username: user.username,
-        isAdmin: user.isAdmin,
-        image: user.image,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    res.json({
-      success: false,
-      message: message,
-      error: error,
-    });
-  }
 };
 
 module.exports = {
-  createUser,
-  loginUser,
+    createUser,
+    loginUser,
 };
