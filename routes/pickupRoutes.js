@@ -1,12 +1,12 @@
 const express = require("express");
 const {
     createPickup,
-    getAllPickups,
+    getPickupsByUserOrSession,
 } = require("../controllers/pickupController");
 
 const router = express.Router();
 
 router.post("/create-pickup", createPickup);
-router.get("/pickups", getAllPickups);
+router.get("/pickups", getPickupsByUserOrSession);
 
 module.exports = router;
