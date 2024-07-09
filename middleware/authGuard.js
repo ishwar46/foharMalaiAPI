@@ -4,7 +4,6 @@ const User = require("../model/userModel");
 let authGuard = async (req, res, next) => {
   try {
     let authHeader = req.headers.authorization;
-    //console.log(authHeader, "this is authHeader");
 
     if (!authHeader) {
       return res.status(401).json({
@@ -14,8 +13,6 @@ let authGuard = async (req, res, next) => {
     }
 
     let token = authHeader.split(" ")[1];
-    token = token.replace("Bearer ", "");
-    //console.log("Extracted Token:", token);
 
     if (!token) {
       return res.status(401).json({
@@ -25,9 +22,10 @@ let authGuard = async (req, res, next) => {
     }
 
     let decodedData = jwt.verify(token, process.env.JWT_SECRET);
-    //console.log(decodedData, "this is usedecvocxdeshgfhjgasdfr");
+    console.log("Decoded Data:", decodedData); // Add this line
+
     let user = await User.findById(decodedData.id);
-    //console.log(user, "this is user");
+    console.log("User:", user); // Add this line
 
     if (!user) {
       return res.status(404).json({
@@ -39,7 +37,6 @@ let authGuard = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    //console.log(error, "this is error");
     res.status(401).json({
       success: false,
       message: "Invalid token!",
