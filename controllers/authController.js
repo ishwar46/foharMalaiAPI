@@ -157,6 +157,7 @@ const loginUser = async(req, res) => {
                         isAdmin: user.isAdmin,
                         fullName: user.fullName,
                         image: user.image,
+                        username: user.username,
                     },
                     process.env.JWT_SECRET, { expiresIn: "12hr" }
                 );
