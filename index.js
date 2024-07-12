@@ -14,16 +14,16 @@ dotenv.config();
 
 // cloudinary config
 cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 //cors config to accept request from frontend
 const corsOptions = {
-  origin: true,
-  credentials: true,
-  optionSuccessStatus: 200,
+    origin: true,
+    credentials: true,
+    optionSuccessStatus: 200,
 };
 
 app.use(acceptMultimedia());
@@ -40,6 +40,7 @@ connectToDB();
 
 //user routes
 app.use("/api/v1/auth/user", require("./routes/authRoutes"));
+app.use("/api/v1/user", require("./routes/userRoute"));
 
 //Waste CRUD routes
 app.use("/api/v1/product", require("./routes/wasteRoutes"));
@@ -56,11 +57,11 @@ const PORT = process.env.PORT;
 //run the server
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
 
 app.get("/", (req, res) => {
-  res.send("This is fohor malai API by Roshan and Ishwar.");
+    res.send("Hello World Hehe");
 });
 
 module.exports = app;
