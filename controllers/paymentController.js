@@ -1,8 +1,7 @@
 const User = require("../model/userModel");
 const Transaction = require("../model/transactionModel");
+const moment = require("moment-timezone");
 
-// Load Balance
-// Load Balance
 exports.loadBalance = async (req, res) => {
   const { amount } = req.body;
 
@@ -28,6 +27,7 @@ exports.loadBalance = async (req, res) => {
       type: "credit",
       amount: amount,
       description: "Balance loaded",
+      date: moment().tz("Asia/Kathmandu").format(),
     });
     await transaction.save();
 
@@ -83,6 +83,7 @@ exports.deductBalance = async (req, res) => {
       description: description || "Amount deducted",
       receiverPhoneNumber: receiverPhoneNumber,
       purpose: purpose || "N/A",
+      date: moment().tz("Asia/Kathmandu").format(),
     });
     await transaction.save();
 
@@ -104,7 +105,17 @@ exports.getTransactionLogs = async (req, res) => {
     const transactions = await Transaction.find({ userId: req.user._id }).sort({
       date: -1,
     });
-    res.status(200).json({ success: true, data: transactions });
+
+    const adjustedTransactions = transactions.map((transaction) => {
+      return {
+        ...transaction.toObject(),
+        date: moment(transaction.date)
+          .tz("Asia/Kathmandu")
+          .format("YYYY-MM-DD HH:mm:ss"),
+      };
+    });
+
+    res.status(200).json({ success: true, data: adjustedTransactions });
   } catch (error) {
     res
       .status(500)
