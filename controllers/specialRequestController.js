@@ -8,9 +8,16 @@ exports.createSpecialRequest = async (req, res) => {
       preferredTime,
       preferredDate,
       additionalInstructions,
+      location,
     } = req.body;
 
-    if (!category || !estimatedWaste || !preferredTime || !preferredDate) {
+    if (
+      !category ||
+      !estimatedWaste ||
+      !preferredTime ||
+      !preferredDate ||
+      !location
+    ) {
       return res.status(400).json({
         success: false,
         message: "All required fields must be provided",
@@ -24,6 +31,7 @@ exports.createSpecialRequest = async (req, res) => {
       preferredTime,
       preferredDate,
       additionalInstructions,
+      location,
     });
 
     const savedRequest = await specialRequest.save();
